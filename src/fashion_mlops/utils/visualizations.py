@@ -55,11 +55,7 @@ def show_images(df=None, ids=None, image_dir=None,
 
     plt.tight_layout()
     plt.show()
-    
 
-
-import pandas as pd
-from PIL import Image
 
 
 def analyze_image_files(df, images_dir, image_id_col="id", extension=".jpg"):
@@ -124,7 +120,34 @@ def analyze_image_files(df, images_dir, image_id_col="id", extension=".jpg"):
     return pd.DataFrame(records)
 
 
+def variable_conflicts(df, group_col):
+    """
+    
+    """
+    conflicts = (
+        df
+        .groupby("file_hash")
+        .filter(lambda x: x[group_col].nunique() > 1)
+        .sort_values(["file_hash", group_col])
+        )
+    
+    ids_duplicates = conflicts["id"].to_list()
+    show_images(ids=ids_duplicates, image_dir=f"{path}/images")
+    
+    n_conflicting_images = conflicts["id"].nunique()
+
+    print(
+        f"Imágenes en grupos con {group_col} conflictivo: {n_conflicting_images} \n"
+        f"Porcentaje sobre el dataset: {n_conflicting_images / len(df) * 100:.3f}%"
+    )
+    
+    return conflicts
+
+
 def analyze_high_cardinality(df, column, top=20, threshold=0.9):
+    """
+    Analiza la concentración de clases en una columna categórica de alto cardinalidad.
+    """
     # 1. Calcular frecuencias y porcentajes
     counts = df[column].value_counts()
     percentage = df[column].value_counts(normalize=True)
@@ -187,3 +210,4 @@ def plot_stacked_percentage(df, var_1, var_2, figsize=(10, 6), title=None, norma
     sns.despine()
     plt.tight_layout()
     plt.show()
+    
