@@ -1,4 +1,3 @@
-import os
 from pathlib import Path
 import math
 
@@ -21,20 +20,20 @@ def show_images(df=None, ids=None, image_dir=None,
     if image_dir is None: 
         raise ValueError("Debes proporcionar 'images_dir'.")
     image_dir = Path(image_dir)
-    
+
     if ids is not None:
         ids = list(ids)
     elif ids is None:
         ids = df.sample(n=min(n_images, len(df)), random_state=random_state)[image_id_col].tolist()
     else: 
         raise ValueError( "Debes proporcionar 'df' o 'ids'." )
-    
+
     n_rows = math.ceil(len(ids) / n_cols)
-    
+
     if figsize is None: 
         figsize = (4 * n_cols, 4 * n_rows)
 
-    fig, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
+    _, axes = plt.subplots(n_rows, n_cols, figsize=figsize)
     axes = axes.flatten() if n_rows > 1 else [axes] if n_cols == 1 else axes.flatten()
 
     for ax, img_id in zip(axes, ids):
@@ -62,15 +61,11 @@ def analyze_image_files(df, images_dir, image_id_col="id", extension=".jpg"):
     """
     Analiza técnicamente las imágenes del dataset.
     """
-
     images_dir = Path(images_dir)
-
     records = []
 
     for image_id in df[image_id_col]:
-
         image_path = images_dir / f"{image_id}{extension}"
-
         record = {
             "id": image_id,
             "path": image_path,
@@ -90,13 +85,11 @@ def analyze_image_files(df, images_dir, image_id_col="id", extension=".jpg"):
 
         try:
             with Image.open(image_path) as img:
-
                 # Verificación real del archivo
                 img.verify()
 
             # Volvemos a abrir porque verify() invalida el objeto
             with Image.open(image_path) as img:
-
                 width, height = img.size
 
                 record["width"] = width
@@ -120,9 +113,10 @@ def analyze_image_files(df, images_dir, image_id_col="id", extension=".jpg"):
     return pd.DataFrame(records)
 
 
-def variable_conflicts(df, group_col):
+def variable_conflicts(df, group_col, path):
     """
-    
+    Identifica conflictos en una columna categórica agrupando por `file_hash`.
+    Muestra las imágenes de los grupos conflictivos y devuelve un DataFrame con los conflictos.
     """
     conflicts = (
         df
@@ -130,17 +124,17 @@ def variable_conflicts(df, group_col):
         .filter(lambda x: x[group_col].nunique() > 1)
         .sort_values(["file_hash", group_col])
         )
-    
+
     ids_duplicates = conflicts["id"].to_list()
     show_images(ids=ids_duplicates, image_dir=f"{path}/images")
-    
+
     n_conflicting_images = conflicts["id"].nunique()
 
     print(
         f"Imágenes en grupos con {group_col} conflictivo: {n_conflicting_images} \n"
         f"Porcentaje sobre el dataset: {n_conflicting_images / len(df) * 100:.3f}%"
     )
-    
+
     return conflicts
 
 
@@ -152,18 +146,18 @@ def analyze_high_cardinality(df, column, top=20, threshold=0.9):
     counts = df[column].value_counts()
     percentage = df[column].value_counts(normalize=True)
     cumulative_perc = percentage.cumsum()
-    
+
     # 2. Identificar punto de corte para el threshold (ej. 90% de los datos)
     n_categories = (cumulative_perc <= threshold).sum() + 1
-    
+
     # 3. Visualización
     plt.figure(figsize=(12, 8))
     sns.barplot(x=counts[:top].values, y=counts[:top].index, hue=counts[:top].index, palette='viridis', legend=False)
     plt.title(f'Top {top} de {column} (Concentración de Clases)', fontsize=14, fontweight='bold')
     plt.xlabel('Frecuencia Absoluta')
-    
+
     print(f"Solo {n_categories} categorías de {len(counts)} explican el {threshold*100}% de los datos en '{column}'.")
-    
+
     return counts, percentage.mul(100).round(2)
 
 
@@ -198,7 +192,7 @@ def plot_stacked_percentage(df, var_1, var_2, figsize=(10, 6), title=None, norma
     """
     distribution = pd.crosstab(df[var_1], df[var_2], normalize=normalize) * 100
 
-    ax = distribution.plot(kind="barh", stacked=True, figsize=figsize)
+    _ = distribution.plot(kind="barh", stacked=True, figsize=figsize)
 
     plt.title(title if title else f"{var_2} Distribution by {var_1}", fontsize=15, fontweight="bold")
 
@@ -210,4 +204,3 @@ def plot_stacked_percentage(df, var_1, var_2, figsize=(10, 6), title=None, norma
     sns.despine()
     plt.tight_layout()
     plt.show()
-    

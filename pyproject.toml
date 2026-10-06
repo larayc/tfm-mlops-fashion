@@ -13,6 +13,7 @@ dependencies = [
     "numpy>=2.4.6",
     "pandas>=3.0.3",
     "pip>=26.2.1",
+    "rapidfuzz>=3.14.6",
     "scikit-learn>=1.9.0",
     "seaborn>=0.13.2",
 ]
