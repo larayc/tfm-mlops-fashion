@@ -9,8 +9,12 @@ NOTEBOOKS_DIR = PROJECT_ROOT / "notebooks"
 
 # Datos
 RAW_DATA_DIR = DATA_DIR / "raw"
-# INTERIM_DATA_DIR = DATA_DIR / "interim"
-# PROCESSED_DATA_DIR = DATA_DIR / "processed"
+IMAGES_DIR = RAW_DATA_DIR / "images"
+INTERIM_DATA_DIR = DATA_DIR / "interim"
+PROCESSED_DATA_DIR = DATA_DIR / "processed"
+
+# Reproducibilidad
+RANDOM_STATE = 42
 
 # # Artefactos
 # MODELS_DIR = PROJECT_ROOT / "models"

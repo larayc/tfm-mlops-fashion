@@ -2224,6 +2224,7 @@ dependencies = [
     { name = "pip" },
     { name = "rapidfuzz" },
     { name = "scikit-learn" },
+    { name = "scipy" },
     { name = "seaborn" },
 ]
 
@@ -2239,6 +2240,7 @@ requires-dist = [
     { name = "pip", specifier = ">=26.2.1" },
     { name = "rapidfuzz", specifier = ">=3.14.6" },
     { name = "scikit-learn", specifier = ">=1.9.0" },
+    { name = "scipy", specifier = ">=1.17.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
 ]
 

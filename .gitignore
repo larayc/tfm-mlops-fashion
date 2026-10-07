@@ -29,7 +29,8 @@ venv.bak/
 .streamlit/secrets.toml
 
 # Data
-data/
+/data/
 
-# Pruebas
+# Pruebas y documentación
 proofs/
+/docs/
