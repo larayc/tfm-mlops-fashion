@@ -6,9 +6,6 @@ __pycache__/
 # Jupyter Notebook
 .ipynb_checkpoints
 
-# UV
-uv.lock
-
 # Environments
 .env
 .envrc
