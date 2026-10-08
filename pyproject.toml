@@ -9,6 +9,7 @@ dependencies = [
     "kagglehub>=1.0.2",
     "matplotlib>=3.11.0",
     "missingno>=0.5.2",
+    "mlflow>=3.17.0",
     "notebook>=7.5.7",
     "numpy>=2.4.6",
     "pandas>=3.0.3",
@@ -17,6 +18,8 @@ dependencies = [
     "scikit-learn>=1.9.0",
     "scipy>=1.17.1",
     "seaborn>=0.13.2",
+    "torch>=2.14.1",
+    "torchvision>=0.29.1",
 ]
 
 [build-system]

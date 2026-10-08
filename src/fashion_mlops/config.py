@@ -16,6 +16,13 @@ PROCESSED_DATA_DIR = DATA_DIR / "processed"
 # Reproducibilidad
 RANDOM_STATE = 42
 
-# # Artefactos
-# MODELS_DIR = PROJECT_ROOT / "models"
-# ARTIFACTS_DIR = PROJECT_ROOT / "artifacts"
+# Imágenes: tamaño de entrada del modelo (alto, ancho), manteniendo la proporción 4:3 vertical
+IMAGE_SIZE = (224, 168)
+
+# Normalización de los modelos preentrenados en ImageNet
+IMAGENET_MEAN = [0.485, 0.456, 0.406]
+IMAGENET_STD = [0.229, 0.224, 0.225]
+
+# MLflow: base de datos local con el registro de experimentos y modelos
+MLFLOW_TRACKING_URI = f"sqlite:///{PROJECT_ROOT / 'mlflow.db'}"
+MLFLOW_EXPERIMENT_NAME = "masterCategory"
