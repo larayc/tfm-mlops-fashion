@@ -13,6 +13,9 @@ IMAGES_DIR = RAW_DATA_DIR / "images"
 INTERIM_DATA_DIR = DATA_DIR / "interim"
 PROCESSED_DATA_DIR = DATA_DIR / "processed"
 
+# Figuras que se exportan para la memoria del TFM (docs/ no se versiona)
+MEMORIA_FIGS_DIR = PROJECT_ROOT / "docs" / "memoria" / "figs"
+
 # Reproducibilidad
 RANDOM_STATE = 42
 
@@ -25,4 +28,9 @@ IMAGENET_STD = [0.229, 0.224, 0.225]
 
 # MLflow: base de datos local con el registro de experimentos y modelos
 MLFLOW_TRACKING_URI = f"sqlite:///{PROJECT_ROOT / 'mlflow.db'}"
+MLFLOW_ARTIFACTS_DIR = PROJECT_ROOT / "mlruns"
 MLFLOW_EXPERIMENT_NAME = "masterCategory"
+
+# Model Registry: nombre del modelo registrado y alias del modelo en producción
+REGISTERED_MODEL_NAME = "fashion-mastercategory"
+CHAMPION_ALIAS = "champion"

@@ -1,7 +1,7 @@
 from pathlib import Path
 
 from PIL import Image
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
 
 from fashion_mlops.config import IMAGE_SIZE, IMAGENET_MEAN, IMAGENET_STD
@@ -51,3 +51,25 @@ class FashionDataset(Dataset):
             image = self.transform(image)
 
         return image, self.labels[idx]
+
+
+def make_loaders(df, images_dir, label_col, batch_size=64, num_workers=4, split_col="split"):
+    """
+    Crea un DataLoader por cada split ('train', 'val', 'test'). Solo train lleva aumento de
+    datos y se baraja; val y test mantienen el orden del DataFrame.
+    """
+    return {
+        split: DataLoader(
+            FashionDataset(
+                df[df[split_col] == split],
+                images_dir,
+                label_col=label_col,
+                transform=get_transforms(train=(split == "train"))
+            ),
+            batch_size=batch_size,
+            shuffle=(split == "train"),
+            num_workers=num_workers,
+            persistent_workers=num_workers > 0
+        )
+        for split in ["train", "val", "test"]
+    }
