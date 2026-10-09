@@ -31,6 +31,10 @@ venv.bak/
 # Data
 /data/
 
+# MLflow (experimentos y modelos locales)
+mlflow.db
+mlruns/
+
 # Pruebas y documentación
 proofs/
 /docs/
