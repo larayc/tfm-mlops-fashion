@@ -1,0 +1,33 @@
+# Tema de ModaLens con los tonos de la marca: #C2C5F6 (lavanda) y #CDE1F9 (azul claro).
+# En modo oscuro se usan tal cual. En modo claro se usan como fondos (etiquetas, barras
+# secundarias) y, para textos, títulos y bordes, versiones más oscuras del mismo tono para que
+# se lean sobre blanco (#393FAC y #2960A3).
+# - Lavanda: logo y título (cabecera), etiquetas y barras del gráfico.
+# - Azul (color principal): bordes al seleccionar o arrastrar, mensaje "Imagen pegada", enlaces
+#   y la categoría predicha.
+# - El código en línea (nombre del experimento, `Other`) mantiene el verde por defecto.
+# Títulos con la fuente Poppins.
+
+[theme]
+headingFont = "Poppins:https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&display=swap"
+headingFontWeights = [800, 700, 600]
+
+[theme.light]
+primaryColor = "#2960A3"
+violetColor = "#393FAC"
+violetTextColor = "#393FAC"
+violetBackgroundColor = "#C2C5F6"
+blueColor = "#2960A3"
+blueTextColor = "#2960A3"
+blueBackgroundColor = "#CDE1F9"
+chartCategoricalColors = ["#393FAC", "#C2C5F6", "#2960A3", "#CDE1F9", "#6F74C9"]
+
+[theme.dark]
+primaryColor = "#CDE1F9"
+violetColor = "#C2C5F6"
+violetTextColor = "#C2C5F6"
+violetBackgroundColor = "#2B2E52"
+blueColor = "#CDE1F9"
+blueTextColor = "#CDE1F9"
+blueBackgroundColor = "#233650"
+chartCategoricalColors = ["#C2C5F6", "#CDE1F9", "#8F95E8", "#9DBDE9", "#E4E6FB"]
