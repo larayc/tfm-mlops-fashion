@@ -33,4 +33,5 @@ MLFLOW_EXPERIMENT_NAME = "masterCategory"
 
 # Model Registry: nombre del modelo registrado y alias del modelo en producción
 REGISTERED_MODEL_NAME = "fashion-mastercategory"
+MULTITASK_MODEL_NAME = "fashion-multitask"
 CHAMPION_ALIAS = "champion"

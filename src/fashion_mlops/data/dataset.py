@@ -1,5 +1,6 @@
 from pathlib import Path
 
+import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 from torchvision import transforms
@@ -31,11 +32,18 @@ class FashionDataset(Dataset):
     """
     Dataset de PyTorch que carga la imagen de cada producto y su etiqueta codificada.
     Las imágenes en escala de grises se convierten a RGB.
+
+    `label_col` puede ser una columna (una etiqueta por imagen) o una lista de columnas
+    (modelo multitarea): en ese caso cada imagen devuelve un tensor con una etiqueta por tarea.
     """
 
     def __init__(self, df, images_dir, label_col, transform=None, image_id_col="id", extension=".jpg"):
         self.image_ids = df[image_id_col].to_list()
-        self.labels = df[label_col].to_list()
+
+        if isinstance(label_col, (list, tuple)):
+            self.labels = list(torch.tensor(df[list(label_col)].to_numpy(), dtype=torch.long))
+        else:
+            self.labels = df[label_col].to_list()
         self.images_dir = Path(images_dir)
         self.transform = transform
         self.extension = extension
