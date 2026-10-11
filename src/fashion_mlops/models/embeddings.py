@@ -14,8 +14,13 @@ def get_feature_extractor(model):
     Devuelve una copia del modelo sin la última capa: en lugar de las probabilidades de cada
     clase, produce el vector de 512 características (embedding) que resume la imagen.
     """
-    extractor = copy.deepcopy(model)
-    extractor.fc = nn.Identity()
+    # Modelo multitarea: el backbone compartido ya devuelve el vector de características
+    if hasattr(model, "backbone"):
+        extractor = copy.deepcopy(model.backbone)
+    else:
+        extractor = copy.deepcopy(model)
+        extractor.fc = nn.Identity()
+
     extractor.eval()
 
     return extractor
@@ -67,8 +72,8 @@ def find_similar(query, embeddings, k=8, mask=None):
     return top, similarity[top]
 
 
-def embeddings_path(model_version):
+def embeddings_path(model_name, model_version):
     """
-    Ruta del fichero de embeddings del catálogo calculados con una versión del modelo registrado.
+    Ruta del fichero de embeddings del catálogo calculados con una versión de un modelo registrado.
     """
-    return PROCESSED_DATA_DIR / f"embeddings_v{model_version}.npz"
+    return PROCESSED_DATA_DIR / f"embeddings_{model_name}_v{model_version}.npz"
