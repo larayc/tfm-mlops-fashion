@@ -2,7 +2,7 @@ import mlflow
 import torch
 from PIL import Image
 
-from fashion_mlops.config import REGISTERED_MODEL_NAME, CHAMPION_ALIAS
+from fashion_mlops.config import REGISTERED_MODEL_NAME, MULTITASK_MODEL_NAME, CHAMPION_ALIAS
 from fashion_mlops.data.dataset import get_transforms
 from fashion_mlops.models.tracking import setup_mlflow
 
@@ -50,3 +50,42 @@ def predict_image(model, image, classes):
     probs = torch.softmax(model(tensor), dim=1).squeeze(0).tolist()
 
     return dict(sorted(zip(classes, probs), key=lambda item: item[1], reverse=True))
+
+
+def load_champion_multitask(name=MULTITASK_MODEL_NAME, alias=CHAMPION_ALIAS):
+    """
+    Carga desde el Model Registry el modelo multitarea marcado con el alias `alias`. Devuelve el
+    modelo en modo evaluación (en CPU) y un diccionario tarea -> lista de clases ordenada por
+    índice.
+    """
+    setup_mlflow()
+
+    model = mlflow.pytorch.load_model(f"models:/{name}@{alias}", map_location="cpu")
+    model.eval()
+
+    version = mlflow.MlflowClient().get_model_version_by_alias(name, alias)
+    label_mappings = mlflow.artifacts.load_dict(f"runs:/{version.run_id}/label_mappings.json")
+    classes = {task: sorted(mapping, key=mapping.get) for task, mapping in label_mappings.items()}
+
+    return model, classes
+
+
+@torch.no_grad()
+def predict_image_multitask(model, image, classes):
+    """
+    Predice todas las tareas del modelo multitarea para una imagen (ruta o imagen PIL).
+    Devuelve un diccionario tarea -> {clase: probabilidad}, ordenado de mayor a menor.
+    """
+    if not isinstance(image, Image.Image):
+        image = Image.open(image)
+
+    tensor = get_transforms(train=False)(image.convert("RGB")).unsqueeze(0)
+    outputs = model(tensor)
+
+    return {
+        task: dict(sorted(
+            zip(classes[task], torch.softmax(outputs[task], dim=1).squeeze(0).tolist()),
+            key=lambda item: item[1], reverse=True,
+        ))
+        for task in classes
+    }
