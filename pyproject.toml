@@ -22,6 +22,7 @@ dependencies = [
     "streamlit>=1.65.0",
     "torch>=2.14.1",
     "torchvision>=0.29.1",
+    "transformers>=5.19.0",
 ]
 
 [build-system]
