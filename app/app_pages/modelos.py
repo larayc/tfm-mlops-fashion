@@ -63,7 +63,23 @@ def load_registry():
     return models
 
 
+@st.cache_data(ttl=600)
+def load_fashionclip():
+    """
+    Lee de MLflow los runs de FashionCLIP (notebook 04b_fashionclip): zero-shot y regresión
+    logística sobre sus embeddings, indexados por nombre. Devuelve None si todavía no se han
+    ejecutado.
+    """
+    setup_mlflow()
+    runs = mlflow.search_runs(experiment_names=["fashionclip"])
+    if runs.empty or "fashionclip_linear_probe" not in runs["tags.mlflow.runName"].values:
+        return None
+
+    return runs.set_index("tags.mlflow.runName")
+
+
 models = load_registry()
+fashionclip = load_fashionclip()
 multitask = models[MULTITASK_MODEL_NAME]
 single = models[REGISTERED_MODEL_NAME]
 
@@ -120,6 +136,25 @@ per_task = pd.DataFrame({
 }).T
 st.dataframe(per_task.style.format("{:.3f}"), width="content")
 
+# Comparación con FashionCLIP (no se usa en la app, solo como referencia)
+st.markdown("#### Comparación con FashionCLIP")
+if fashionclip is None:
+    st.caption("Todavía no hay resultados de FashionCLIP en MLflow. Se calculan en el notebook `04b_fashionclip`.")
+else:
+    clip_comparison = pd.DataFrame({
+        "Multitarea (en uso)": {TASK_LABELS[task]: multitask["metrics"][f"test_{task}_f1_macro"] for task in mt_tasks},
+        "FashionCLIP + regresión logística": {
+            TASK_LABELS[task]: fashionclip.loc["fashionclip_linear_probe", f"metrics.test_{task}_f1_macro"] for task in mt_tasks
+        },
+    }).T
+    st.dataframe(clip_comparison.style.format("{:.3f}"), width="content")
+    st.caption(
+        "F1-macro en test, con las mismas clases y el mismo split. FashionCLIP es un modelo de imagen y texto "
+        "preentrenado con unos 700.000 productos de moda; aquí lo usamos sin reentrenar, con una regresión logística "
+        "por tarea sobre sus embeddings. Iguala o mejora al multitarea en tipo, color y género (en la categoría la "
+        "diferencia es otra vez `Other`), pero es unas 8 veces más grande, así que la app sigue usando el multitarea."
+    )
+
 # Matrices de confusión guardadas en MLflow
 st.markdown("#### Matrices de confusión de la categoría principal")
 col_cm_multi, col_cm_single = st.columns(2)
@@ -134,3 +169,20 @@ st.markdown("#### Historial de versiones")
 for name in [MULTITASK_MODEL_NAME, REGISTERED_MODEL_NAME]:
     st.markdown(f"`{name}`")
     st.dataframe(pd.DataFrame(models[name]["history"]), hide_index=True, width="content")
+
+# FashionCLIP no está en el Model Registry: mostramos sus runs de MLflow como comparación
+if fashionclip is not None:
+    st.markdown("`fashionCLIP` (sin registrar, solo comparación)")
+    clip_f1 = {
+        "fashionclip_linear_probe": f"{fashionclip.loc['fashionclip_linear_probe', 'metrics.test_masterCategory_f1_macro']:.4f}",
+    }
+    if "fashionclip_zero_shot" in fashionclip.index:
+        clip_f1["fashionclip_zero_shot"] = f"{fashionclip.loc['fashionclip_zero_shot', 'metrics.test_known_masterCategory_f1_macro']:.4f} (sin Other)"
+    st.dataframe(
+        pd.DataFrame([
+            {"Versión": "—", "Experimento": run_name, "Alias": "sin registrar", "F1-macro categoría (test)": f1}
+            for run_name, f1 in clip_f1.items()
+        ]),
+        hide_index=True, width="content",
+    )
+    st.caption("El zero-shot no puede predecir `Other`, así que se evalúa sin esas imágenes.")
