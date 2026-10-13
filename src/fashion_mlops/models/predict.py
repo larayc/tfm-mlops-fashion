@@ -2,9 +2,8 @@ import mlflow
 import torch
 from PIL import Image
 
-from fashion_mlops.config import REGISTERED_MODEL_NAME, MULTITASK_MODEL_NAME, CHAMPION_ALIAS
+from fashion_mlops.config import MLFLOW_TRACKING_URI, REGISTERED_MODEL_NAME, MULTITASK_MODEL_NAME, CHAMPION_ALIAS
 from fashion_mlops.data.dataset import get_transforms
-from fashion_mlops.models.tracking import setup_mlflow
 
 
 def load_champion_model(name=REGISTERED_MODEL_NAME, alias=CHAMPION_ALIAS):
@@ -13,7 +12,8 @@ def load_champion_model(name=REGISTERED_MODEL_NAME, alias=CHAMPION_ALIAS):
     de clases. Devuelve el modelo en modo evaluación (en CPU) y la lista de clases ordenada
     por índice.
     """
-    setup_mlflow()
+    # Solo la base de datos de MLflow: cargar un modelo no debe cambiar el experimento activo
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
     model = mlflow.pytorch.load_model(f"models:/{name}@{alias}", map_location="cpu")
     model.eval()
@@ -32,7 +32,8 @@ def get_champion_version(name=REGISTERED_MODEL_NAME, alias=CHAMPION_ALIAS):
     Devuelve la versión del Model Registry marcada con el alias `alias` (número de versión,
     run de origen, descripción y tags con sus métricas).
     """
-    setup_mlflow()
+    # Solo la base de datos de MLflow: cargar un modelo no debe cambiar el experimento activo
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
     return mlflow.MlflowClient().get_model_version_by_alias(name, alias)
 
@@ -58,7 +59,8 @@ def load_champion_multitask(name=MULTITASK_MODEL_NAME, alias=CHAMPION_ALIAS):
     modelo en modo evaluación (en CPU) y un diccionario tarea -> lista de clases ordenada por
     índice.
     """
-    setup_mlflow()
+    # Solo la base de datos de MLflow: cargar un modelo no debe cambiar el experimento activo
+    mlflow.set_tracking_uri(MLFLOW_TRACKING_URI)
 
     model = mlflow.pytorch.load_model(f"models:/{name}@{alias}", map_location="cpu")
     model.eval()
